@@ -21,7 +21,7 @@ El frontend queda en la raíz del repositorio para conservar la estructura del p
 
 Requisitos: Node.js compatible con Expo 57 (22.13 o superior) y Python 3.9 o superior. Recomendado Python 3.12.
 
-Desde la raíz de `mercalibre`, preparar el backend una vez:
+Desde la raíz de `vinoteca`, preparar el backend una vez:
 
 ```bash
 python3 -m venv backend/.venv
