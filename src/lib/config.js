@@ -5,9 +5,9 @@ import { Platform } from 'react-native';
 const host = Constants.expoConfig?.hostUri?.split(':')[0] || 'localhost';
 const servidorLocal = Platform.OS === 'web' ? 'localhost' : host;
 
-// En producción esta variable debe contener la URL HTTPS del backend.
+// En la web de Vercel usamos /api. En el celular usamos la URL HTTPS pública.
 export const URL_API = process.env.EXPO_PUBLIC_API_URL || (
-  __DEV__ ? `http://${servidorLocal}:3001` : ''
+  __DEV__ ? `http://${servidorLocal}:3001` : (Platform.OS === 'web' ? '/api' : '')
 );
 
 export function mostrarPrecio(precio) {

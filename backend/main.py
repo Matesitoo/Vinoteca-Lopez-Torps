@@ -6,9 +6,10 @@ from typing import List, Literal
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from backend.db import get_connection, iniciar_base, producto_json
+from backend.db import (get_connection, iniciar_base, producto_json,
+                        consultar, iniciar_transaccion, buscar_para_compra)
 
-app = FastAPI(title='Vinoteca Lopez y Thorps')
+app = FastAPI(title='Vinoteca Lopez & Torps', docs_url='/api/docs', openapi_url='/api/openapi.json')
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[os.getenv('CORS_ORIGIN', '*')],
@@ -37,26 +38,29 @@ class Pedido(BaseModel):
     total: float = Field(gt=0, allow_inf_nan=False)
 
 
-@app.get('/health')
+@app.get('/api/health')
+@app.get('/health', include_in_schema=False)
 def estado():
     return {'status': 'ok'}
 
 
-@app.get('/productos')
+@app.get('/api/productos')
+@app.get('/productos', include_in_schema=False)
 def obtener_productos():
     conexion = get_connection()
     try:
-        filas = conexion.execute('SELECT * FROM productos ORDER BY id').fetchall()
+        filas = consultar(conexion, 'SELECT * FROM productos ORDER BY id').fetchall()
         return [producto_json(fila) for fila in filas]
     finally:
         conexion.close()
 
 
-@app.get('/productos/{id}')
+@app.get('/api/productos/{id}')
+@app.get('/productos/{id}', include_in_schema=False)
 def obtener_producto(id: int):
     conexion = get_connection()
     try:
-        fila = conexion.execute('SELECT * FROM productos WHERE id = ?', (id,)).fetchone()
+        fila = consultar(conexion, 'SELECT * FROM productos WHERE id = ?', (id,)).fetchone()
         if fila is None:
             raise HTTPException(status_code=404, detail='No se encontró el vino.')
         return producto_json(fila)
@@ -64,7 +68,8 @@ def obtener_producto(id: int):
         conexion.close()
 
 
-@app.post('/checkout', status_code=201)
+@app.post('/api/checkout', status_code=201)
+@app.post('/checkout', status_code=201, include_in_schema=False)
 def confirmar_compra(pedido: Pedido):
     comprador = pedido.comprador
     if len(comprador.nombre.strip()) < 3 or len(comprador.direccion.strip()) < 5 or len(comprador.referencia.strip()) < 3:
@@ -73,15 +78,15 @@ def confirmar_compra(pedido: Pedido):
     conexion = get_connection()
     try:
         # Una transacción guarda orden y stock juntos, o cancela ambos.
-        conexion.execute('BEGIN IMMEDIATE')
+        iniciar_transaccion(conexion)
         cantidades = {}
         for item in pedido.items:
             cantidades[item.id] = cantidades.get(item.id, 0) + item.cantidad
 
         total_centavos = 0
         productos_pedido = []
-        for id, cantidad in cantidades.items():
-            fila = conexion.execute('SELECT * FROM productos WHERE id = ?', (id,)).fetchone()
+        for id, cantidad in sorted(cantidades.items()):
+            fila = buscar_para_compra(conexion, id)
             if fila is None:
                 raise HTTPException(status_code=404, detail='Uno de los vinos ya no existe.')
             if cantidad > fila['stock'] or cantidad > 99:
@@ -97,13 +102,13 @@ def confirmar_compra(pedido: Pedido):
 
         fecha = datetime.now(timezone.utc).isoformat()
         datos_comprador = {'nombre': comprador.nombre.strip(), 'direccion': comprador.direccion.strip()}
-        cursor = conexion.execute(
-            'INSERT INTO ordenes (fecha, comprador, total, items) VALUES (?, ?, ?, ?)',
+        cursor = consultar(conexion,
+            'INSERT INTO ordenes (fecha, comprador, total, items) VALUES (?, ?, ?, ?) RETURNING id',
             (fecha, json.dumps(datos_comprador), total_centavos, json.dumps(productos_pedido))
         )
-        numero_orden = cursor.lastrowid
+        numero_orden = cursor.fetchone()['id']
         for id, cantidad in cantidades.items():
-            conexion.execute('UPDATE productos SET stock = stock - ? WHERE id = ?', (cantidad, id))
+            consultar(conexion, 'UPDATE productos SET stock = stock - ? WHERE id = ?', (cantidad, id))
         conexion.commit()
 
         return {

@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "MercaLibre Vinos",
-    "slug": "mercalibre",
+    "name": "Vinoteca Lopez & Torps",
+    "slug": "vinoteca-lopez-torps",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mercalibre",
+    "scheme": "vinotecalopeztorps",
     "userInterfaceStyle": "light",
     "ios": {
       "icon": "./assets/expo.icon"
@@ -20,7 +20,7 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "output": "static",
+      "output": "single",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [

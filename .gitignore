@@ -51,3 +51,6 @@ backend/data/
 backend/.venv/
 __pycache__/
 *.pyc
+
+.vercel/
+backend/.env

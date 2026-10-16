@@ -7,6 +7,8 @@ from pathlib import Path
 # Todas las pruebas usan una base temporal, separada del catálogo de la app.
 carpeta = tempfile.TemporaryDirectory()
 os.environ['DB_PATH'] = str(Path(carpeta.name) / 'pruebas.db')
+os.environ['DATABASE_URL'] = ''
+os.environ.pop('VERCEL', None)
 from fastapi.testclient import TestClient
 from backend.main import app
 from backend.db import get_connection, iniciar_base
@@ -29,6 +31,12 @@ class PruebasTienda(unittest.TestCase):
             'items': [{'id': 1, 'cantidad': 2}],
             'total': self.producto['precio'] * 2,
         }
+
+    def test_rutas_de_produccion(self):
+        self.assertEqual(self.cliente.get('/api/productos').json(), self.cliente.get('/productos').json())
+        self.assertEqual(self.cliente.get('/api/productos/1').status_code, 200)
+        self.assertEqual(self.cliente.get('/api/docs').status_code, 200)
+        self.assertEqual(self.cliente.post('/api/checkout', json=self.pedido).status_code, 201)
 
     def test_catalogo_y_detalle(self):
         productos = self.cliente.get('/productos').json()

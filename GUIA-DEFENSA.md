@@ -21,8 +21,8 @@ El repositorio `Matesitoo/Vinoteca-Lopez-Torps` estaba vacío al revisarlo; las 
 4. `src/app/detalle/[id].jsx`: el catálogo envía el ID en la navegación. `useLocalSearchParams` lo lee y el GET consulta el vino correspondiente.
 5. `src/context/CarritoContext.jsx`: `useState` conserva el arreglo compartido. `find` busca un producto, `map` modifica cantidades y `filter` elimina. El total es precio por cantidad, sumado para todos los ítems.
 6. `src/app/carrito.jsx`: cada `TextInput` tiene su estado. El botón arma un objeto `pedido`, lo convierte a JSON y hace POST. Si el servidor confirma, muestra la orden y vacía el carrito.
-7. `backend/main.py`: FastAPI recibe el JSON y `BaseModel` valida su estructura. Después se comprueban existencia, stock y total real desde SQLite.
-8. `backend/db.py`: abre la conexión, crea las tablas y carga los 20 vinos desde el seed una sola vez.
+7. `backend/main.py`: FastAPI recibe el JSON y `BaseModel` valida su estructura. Después se comprueban existencia, stock y total real desde la base de datos.
+8. `backend/db.py`: abre la conexión a Supabase usando `DATABASE_URL`. Para practicar localmente, también permite SQLite. `database/supabase.sql` crea las tablas de PostgreSQL y carga los 20 vinos.
 
 ## Flujo de una compra
 
@@ -42,3 +42,7 @@ La app calcula un total para mostrarlo, pero el servidor **lo vuelve a calcular*
 - ¿Por qué la API debe tener una URL pública HTTPS para producción?
 
 Lean las funciones y prueben sus cambios antes de defender. Ambos deben poder explicar el recorrido completo.
+
+## Cómo explicar producción
+
+La web se publica en Vercel. Las peticiones a `/api/productos` y `/api/checkout` llegan a nuestro código de FastAPI. El servidor se conecta a PostgreSQL en Supabase con una contraseña que solo existe en el entorno del backend. No usamos la clave pública de Supabase en el frontend. Al confirmar una compra, `SELECT ... FOR UPDATE` bloquea las filas seleccionadas hasta guardar la orden y descontar el stock. SQLite queda para practicar sin conexión a Supabase.
