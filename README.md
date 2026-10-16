@@ -1,4 +1,4 @@
-# Vinoteca Lopez & Torps
+# Vinoteca Lopez y Torps
 
 Trabajo Práctico N.º 2 — Tienda móvil con carrito y pago simulado.
 
