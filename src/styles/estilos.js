@@ -1,0 +1,33 @@
+import { StyleSheet } from 'react-native';
+
+// Un solo archivo de estilos para mantener las tres pantallas coherentes.
+export const estilos = StyleSheet.create({
+  pantalla: { flex: 1, backgroundColor: '#FBF7F2' },
+  contenido: { padding: 20, gap: 16, width: '100%', maxWidth: 800, alignSelf: 'center' },
+  fila: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
+  titulo: { fontSize: 28, fontWeight: 'bold', color: '#34232B' },
+  subtitulo: { fontSize: 20, fontWeight: 'bold', color: '#34232B' },
+  texto: { fontSize: 16, lineHeight: 24, color: '#78666D' },
+  precio: { fontSize: 23, fontWeight: 'bold', color: '#782E47' },
+  tarjeta: { padding: 16, backgroundColor: 'white', borderRadius: 16, borderWidth: 1, borderColor: '#E7DCD7', gap: 12, marginBottom: 16 },
+  imagen: { width: '100%', height: 200, borderRadius: 12, backgroundColor: '#F1E8E1', resizeMode: 'contain' },
+  imagenDetalle: { height: 300 },
+  imagenCarrito: { width: 80, height: 80, borderRadius: 10 },
+  boton: { backgroundColor: '#782E47', padding: 14, borderRadius: 12, alignItems: 'center', justifyContent: 'center', minHeight: 48 },
+  botonSecundario: { backgroundColor: '#F1DFE5' },
+  botonDeshabilitado: { opacity: 0.45 },
+  textoBoton: { color: 'white', fontSize: 16, fontWeight: 'bold' },
+  textoBotonSecundario: { color: '#782E47' },
+  entrada: { padding: 14, borderWidth: 1, borderColor: '#E7DCD7', borderRadius: 12, backgroundColor: 'white', fontSize: 16, color: '#34232B' },
+  filtros: { gap: 8, paddingVertical: 8 },
+  filtro: { padding: 12, borderRadius: 20, backgroundColor: '#F1DFE5' },
+  filtroActivo: { backgroundColor: '#782E47' },
+  textoFiltroActivo: { color: 'white' },
+  etiqueta: { fontSize: 14, fontWeight: 'bold', color: '#34232B' },
+  error: { color: '#A12626', fontSize: 16, lineHeight: 24 },
+  centrado: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24, gap: 16 },
+  bloque: { backgroundColor: '#EFE0E0', padding: 20, borderRadius: 16, gap: 12 },
+  controles: { flexDirection: 'row', alignItems: 'center', gap: 16 },
+  formulario: { gap: 12 },
+  flexible: { flex: 1 },
+});

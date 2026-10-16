@@ -1,0 +1,182 @@
+[
+  {
+    "id": 1,
+    "nombre": "Finca del Sol Malbec",
+    "descripcion": "Malbec · Mendoza, Argentina. Frutos rojos y un final suave. Ideal para acompañar pastas y carnes. Presentación: botella de 750 ml. Etiqueta ficticia del catálogo educativo; imagen ilustrativa y precio simulado.",
+    "precio": 1250000,
+    "imagen": "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=900&q=80",
+    "categoria": "Tintos",
+    "stock": 11
+  },
+  {
+    "id": 2,
+    "nombre": "Altura Andina Cabernet",
+    "descripcion": "Cabernet Sauvignon · Valle de Uco, Argentina. Notas de ciruela, especias y taninos firmes. Presentación: botella de 750 ml. Etiqueta ficticia del catálogo educativo; imagen ilustrativa y precio simulado.",
+    "precio": 1480000,
+    "imagen": "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=900&q=80",
+    "categoria": "Tintos",
+    "stock": 12
+  },
+  {
+    "id": 3,
+    "nombre": "Raíz del Valle Merlot",
+    "descripcion": "Merlot · San Rafael, Argentina. Perfil frutado, textura amable y un final redondo. Presentación: botella de 750 ml. Etiqueta ficticia del catálogo educativo; imagen ilustrativa y precio simulado.",
+    "precio": 1090000,
+    "imagen": "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=900&q=80",
+    "categoria": "Tintos",
+    "stock": 13
+  },
+  {
+    "id": 4,
+    "nombre": "Ladera Sur Pinot Noir",
+    "descripcion": "Pinot Noir · Patagonia, Argentina. Ligero y delicado, con notas de cereza. Presentación: botella de 750 ml. Etiqueta ficticia del catálogo educativo; imagen ilustrativa y precio simulado.",
+    "precio": 1790000,
+    "imagen": "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=900&q=80",
+    "categoria": "Tintos",
+    "stock": 14
+  },
+  {
+    "id": 5,
+    "nombre": "Piedra Alta Syrah",
+    "descripcion": "Syrah · San Juan, Argentina. Aromas de frutos negros y un toque especiado. Presentación: botella de 750 ml. Etiqueta ficticia del catálogo educativo; imagen ilustrativa y precio simulado.",
+    "precio": 1320000,
+    "imagen": "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=900&q=80",
+    "categoria": "Tintos",
+    "stock": 15
+  },
+  {
+    "id": 6,
+    "nombre": "Encuentro Reserva Blend",
+    "descripcion": "Malbec y Cabernet Sauvignon · Mendoza, Argentina. Blend equilibrado de buena estructura y final persistente. Presentación: botella de 750 ml. Etiqueta ficticia del catálogo educativo; imagen ilustrativa y precio simulado.",
+    "precio": 2150000,
+    "imagen": "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=900&q=80",
+    "categoria": "Tintos",
+    "stock": 16
+  },
+  {
+    "id": 7,
+    "nombre": "Viña Clara Chardonnay",
+    "descripcion": "Chardonnay · Valle de Uco, Argentina. Notas de manzana y pera, con una textura fresca. Presentación: botella de 750 ml. Etiqueta ficticia del catálogo educativo; imagen ilustrativa y precio simulado.",
+    "precio": 1180000,
+    "imagen": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&w=900&q=80",
+    "categoria": "Blancos",
+    "stock": 17
+  },
+  {
+    "id": 8,
+    "nombre": "Brisa del Norte Torrontés",
+    "descripcion": "Torrontés · Cafayate, Argentina. Aromático y floral, con notas cítricas. Presentación: botella de 750 ml. Etiqueta ficticia del catálogo educativo; imagen ilustrativa y precio simulado.",
+    "precio": 990000,
+    "imagen": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&w=900&q=80",
+    "categoria": "Blancos",
+    "stock": 18
+  },
+  {
+    "id": 9,
+    "nombre": "Costa de Luz Sauvignon",
+    "descripcion": "Sauvignon Blanc · Mendoza, Argentina. Fresco y vivaz, con notas herbales y de pomelo. Presentación: botella de 750 ml. Etiqueta ficticia del catálogo educativo; imagen ilustrativa y precio simulado.",
+    "precio": 1270000,
+    "imagen": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&w=900&q=80",
+    "categoria": "Blancos",
+    "stock": 19
+  },
+  {
+    "id": 10,
+    "nombre": "Río Abierto Chenin",
+    "descripcion": "Chenin Blanc · San Rafael, Argentina. Frutado y equilibrado para acompañar platos ligeros. Presentación: botella de 750 ml. Etiqueta ficticia del catálogo educativo; imagen ilustrativa y precio simulado.",
+    "precio": 890000,
+    "imagen": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&w=900&q=80",
+    "categoria": "Blancos",
+    "stock": 20
+  },
+  {
+    "id": 11,
+    "nombre": "Alba de Viña Rosé",
+    "descripcion": "Malbec Rosé · Mendoza, Argentina. Rosado fresco con notas de frutilla y un final delicado. Presentación: botella de 750 ml. Etiqueta ficticia del catálogo educativo; imagen ilustrativa y precio simulado.",
+    "precio": 1120000,
+    "imagen": "https://images.unsplash.com/photo-1516594798947-e65505dbb29d?auto=format&fit=crop&w=900&q=80",
+    "categoria": "Rosados",
+    "stock": 21
+  },
+  {
+    "id": 12,
+    "nombre": "Jardín del Sur Rosado",
+    "descripcion": "Pinot Noir Rosé · Patagonia, Argentina. Aromas de frutos rojos y una acidez refrescante. Presentación: botella de 750 ml. Etiqueta ficticia del catálogo educativo; imagen ilustrativa y precio simulado.",
+    "precio": 1390000,
+    "imagen": "https://images.unsplash.com/photo-1516594798947-e65505dbb29d?auto=format&fit=crop&w=900&q=80",
+    "categoria": "Rosados",
+    "stock": 22
+  },
+  {
+    "id": 13,
+    "nombre": "Tarde de Verano Rosé",
+    "descripcion": "Syrah Rosé · San Juan, Argentina. Perfil joven y frutado para servir bien fresco. Presentación: botella de 750 ml. Etiqueta ficticia del catálogo educativo; imagen ilustrativa y precio simulado.",
+    "precio": 950000,
+    "imagen": "https://images.unsplash.com/photo-1516594798947-e65505dbb29d?auto=format&fit=crop&w=900&q=80",
+    "categoria": "Rosados",
+    "stock": 23
+  },
+  {
+    "id": 14,
+    "nombre": "Burbuja de Luna Brut",
+    "descripcion": "Chardonnay y Pinot Noir · Mendoza, Argentina. Burbujas finas, notas cítricas y un final seco. Presentación: botella de 750 ml. Etiqueta ficticia del catálogo educativo; imagen ilustrativa y precio simulado.",
+    "precio": 1890000,
+    "imagen": "https://images.unsplash.com/photo-1516594798947-e65505dbb29d?auto=format&fit=crop&w=900&q=80",
+    "categoria": "Espumantes",
+    "stock": 24
+  },
+  {
+    "id": 15,
+    "nombre": "Cumbre Extra Brut",
+    "descripcion": "Chardonnay · Valle de Uco, Argentina. Fresco, elegante y de burbuja persistente. Presentación: botella de 750 ml. Etiqueta ficticia del catálogo educativo; imagen ilustrativa y precio simulado.",
+    "precio": 2290000,
+    "imagen": "https://images.unsplash.com/photo-1516594798947-e65505dbb29d?auto=format&fit=crop&w=900&q=80",
+    "categoria": "Espumantes",
+    "stock": 10
+  },
+  {
+    "id": 16,
+    "nombre": "Aurora Rosé Brut",
+    "descripcion": "Pinot Noir · Mendoza, Argentina. Espumante rosado con notas de frutos rojos. Presentación: botella de 750 ml. Etiqueta ficticia del catálogo educativo; imagen ilustrativa y precio simulado.",
+    "precio": 1990000,
+    "imagen": "https://images.unsplash.com/photo-1516594798947-e65505dbb29d?auto=format&fit=crop&w=900&q=80",
+    "categoria": "Espumantes",
+    "stock": 11
+  },
+  {
+    "id": 17,
+    "nombre": "Dulce Encuentro Tardío",
+    "descripcion": "Cosecha tardía blanca · Mendoza, Argentina. Notas de miel y fruta madura, ideal con postres. Presentación: botella de 750 ml. Etiqueta ficticia del catálogo educativo; imagen ilustrativa y precio simulado.",
+    "precio": 1050000,
+    "imagen": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&w=900&q=80",
+    "categoria": "Dulces",
+    "stock": 12
+  },
+  {
+    "id": 18,
+    "nombre": "Sol de Octubre Moscatel",
+    "descripcion": "Moscatel · San Juan, Argentina. Aromático y dulce, con un final floral. Presentación: botella de 750 ml. Etiqueta ficticia del catálogo educativo; imagen ilustrativa y precio simulado.",
+    "precio": 920000,
+    "imagen": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&w=900&q=80",
+    "categoria": "Dulces",
+    "stock": 13
+  },
+  {
+    "id": 19,
+    "nombre": "Finca del Sol Gran Reserva",
+    "descripcion": "Malbec · Valle de Uco, Argentina. Concentrado, con notas de frutos negros y crianza en roble. Presentación: botella de 750 ml. Etiqueta ficticia del catálogo educativo; imagen ilustrativa y precio simulado.",
+    "precio": 3290000,
+    "imagen": "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=900&q=80",
+    "categoria": "Reservas",
+    "stock": 14
+  },
+  {
+    "id": 20,
+    "nombre": "Raíz de los Andes Reserva",
+    "descripcion": "Cabernet Franc · Mendoza, Argentina. Especiado, de estructura firme y final prolongado. Presentación: botella de 750 ml. Etiqueta ficticia del catálogo educativo; imagen ilustrativa y precio simulado.",
+    "precio": 2790000,
+    "imagen": "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=900&q=80",
+    "categoria": "Reservas",
+    "stock": 15
+  }
+]
