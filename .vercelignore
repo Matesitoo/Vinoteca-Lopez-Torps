@@ -1,0 +1,14 @@
+.git/
+node_modules/
+.expo/
+dist/
+backend/.venv/
+backend/data/
+backend/.env
+.env
+.env.local
+.env.*.local
+**/__pycache__/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm

@@ -120,7 +120,7 @@ Las pantallas son JSX y se revisan con lint; TypeScript solo revisa los archivos
 
 El código queda preparado para un solo dominio: web Expo en `/` y API propia FastAPI en `/api`. El frontend consulta nuestra API; la API consulta PostgreSQL. La base no se expone directamente a la app.
 
-**Estado:** pendiente crear/conectar los proyectos y validar una compra contra la base real. El SQL y la configuración están en el repositorio, pero eso no significa que ya estén publicados.
+**Estado:** web y API publicadas en Production: https://vinoteca-lopez-torps.vercel.app. Supabase `vinoteca` (`qlshcbmolalexrqdrnfv`) conectado, 20 vinos cargados y compra completa verificada desde la web (orden simulada 2). La orden 1 corresponde a la prueba técnica inicial. El APK móvil todavía debe generarse e instalarse para la defensa nativa.
 
 ### 1. Crear Supabase
 
@@ -135,9 +135,10 @@ Para usar Supabase también en desarrollo, copiar `backend/.env.example` a `back
 Importar `Matesitoo/Vinoteca-Lopez-Torps`, con nombre `vinoteca-lopez-torps`, raíz del repositorio y rama de producción `main`.
 
 - Framework: **Other** (`framework: null`).
+- Install Command: `npm ci`.
 - Build Command: `npx expo export --platform web`.
 - Output Directory: `dist`.
-- Python: 3.12, indicado en `.python-version`.
+- Python: 3.12, indicado en `.python-version` y `pyproject.toml`.
 - Variable **Production**: `DATABASE_URL`, con la conexión de Supabase.
 - Variable opcional: `CORS_ORIGIN`, con el dominio final; el valor predeterminado permite el consumo desde la app.
 
@@ -168,3 +169,13 @@ npx eas-cli@latest build --platform android --profile preview
 La web publicada en Vercel y el APK son entregas diferentes. Probar también el APK contra la API pública para la defensa móvil.
 
 Repositorio: https://github.com/Matesitoo/Vinoteca-Lopez-Torps. Ambos integrantes deben hacer sus propios commits y poder explicar el código.
+
+### Actualizaciones de producción
+
+El primer despliegue se hizo con la CLI oficial de Vercel. El enlace automático con `Matesitoo/Vinoteca-Lopez-Torps` todavía requiere que Vercel tenga acceso a ese repositorio desde GitHub; hacer push por sí solo no vuelve a publicar. Hasta conectar ese permiso, ejecutar desde la carpeta del proyecto autenticada:
+
+```bash
+npx vercel@latest deploy --prod --yes --scope bachalopez22s-projects
+```
+
+La variable `DATABASE_URL` está guardada como Secret en Production. `.vercelignore` excluye los archivos locales de credenciales y las bases de desarrollo de los uploads.
