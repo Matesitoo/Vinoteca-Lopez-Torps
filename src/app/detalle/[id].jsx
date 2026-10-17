@@ -2,33 +2,29 @@ import { useContext, useEffect, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ActivityIndicator, Alert, Image, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CarritoContext } from '../../context/CarritoContext';
-import { URL_API, mostrarPrecio } from '../../lib/config';
-import { estilos } from '../../styles/estilos';
-import Boton from '../../components/Boton';
+import { ContextoCarrito } from '../../contexto/ContextoCarrito';
+import { consultarApi, mostrarPrecio } from '../../configuracion/api';
+import { estilos } from '../../estilos/estilos';
+import Boton from '../../componentes/Boton';
 
 export default function Detalle() {
   // El id viene de la URL, como en el trabajo de octubre.
   const { id } = useLocalSearchParams();
-  const router = useRouter();
-  const { carrito, agregarProducto } = useContext(CarritoContext);
-  const [producto, setProducto] = useState(null);
-  const [cargando, setCargando] = useState(true);
-  const [error, setError] = useState('');
-  const [agregado, setAgregado] = useState(false);
+  const navegacion = useRouter();
+  const { carrito, agregarProducto } = useContext(ContextoCarrito);
+  const [producto, actualizarProducto] = useState(null);
+  const [cargando, cambiarCarga] = useState(true);
+  const [error, cambiarError] = useState('');
+  const [agregado, cambiarAgregado] = useState(false);
 
   function cargarProducto(idProducto) {
-    return fetch(`${URL_API}/productos/${idProducto}`)
-      .then((respuesta) => {
-        if (!respuesta.ok) throw new Error('No se encontró el vino.');
-        return respuesta.json();
-      })
+    return consultarApi(`/productos/${encodeURIComponent(idProducto)}`)
       .then((datos) => {
-        setProducto(datos);
-        setError('');
+        actualizarProducto(datos);
+        cambiarError('');
       })
-      .catch((problema) => setError(problema.message))
-      .finally(() => setCargando(false));
+      .catch((problema) => cambiarError(problema.message))
+      .finally(() => cambiarCarga(false));
   }
 
   useEffect(() => {
@@ -37,20 +33,30 @@ export default function Detalle() {
   }, [id]);
 
   if (cargando) {
-    return <SafeAreaView style={estilos.centrado}><ActivityIndicator size="large" color="#782E47" /></SafeAreaView>;
+    return (
+      <SafeAreaView style={estilos.centrado}>
+        <ActivityIndicator size="large" color="#782E47" />
+      </SafeAreaView>
+    );
   }
 
   if (error || !producto) {
     return (
       <SafeAreaView style={estilos.centrado}>
         <Text style={estilos.error}>{error || 'Producto no encontrado.'}</Text>
-        <Boton titulo="Reintentar" onPress={() => { setCargando(true); cargarProducto(id); }} />
+        <Boton
+          titulo="Reintentar"
+          alPresionar={() => {
+            cambiarCarga(true);
+            cargarProducto(id);
+          }}
+        />
       </SafeAreaView>
     );
   }
 
-  const item = carrito.find((item) => item.id === producto.id);
-  const cantidad = item ? item.cantidad : 0;
+  const articulo = carrito.find((articulo) => articulo.id === producto.id);
+  const cantidad = articulo ? articulo.cantidad : 0;
   const sinDisponibilidad = cantidad >= Math.min(producto.stock, 99);
 
   return (
@@ -68,10 +74,14 @@ export default function Detalle() {
         <Boton
           titulo={sinDisponibilidad ? 'Sin más unidades disponibles' : 'Agregar al carrito'}
           deshabilitado={sinDisponibilidad}
-          onPress={() => { agregarProducto(producto); setAgregado(true); Alert.alert('Carrito', 'Vino agregado al carrito.'); }}
+          alPresionar={() => {
+            agregarProducto(producto);
+            cambiarAgregado(true);
+            Alert.alert('Carrito', 'Vino agregado al carrito.');
+          }}
         />
         {agregado && <Text style={estilos.texto}>Agregado al carrito. Cantidad: {cantidad}.</Text>}
-        <Boton titulo="Ver carrito" secundario onPress={() => router.push('/carrito')} />
+        <Boton titulo="Ver carrito" secundario alPresionar={() => navegacion.push('/carrito')} />
       </ScrollView>
     </SafeAreaView>
   );

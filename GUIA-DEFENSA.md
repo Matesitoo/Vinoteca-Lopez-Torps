@@ -6,23 +6,23 @@ Integrantes: Santiago Lopez y Mateo Thorps.
 
 | Trabajo revisado | Tema que se reutiliza | Archivo de la tienda |
 | --- | --- | --- |
-| Agosto: lista con `Usuario` | `FlatList`, `keyExtractor`, `renderItem`, props | `src/app/index.jsx`, `src/components/Producto.jsx` |
+| Agosto: lista con `Usuario` | `FlatList`, `keyExtractor`, `renderItem`, props | `src/app/index.jsx`, `src/componentes/Producto.jsx` |
 | Septiembre: NASA y `useFetch` | `useState`, `useEffect`, `fetch`, carga y renderizado condicional | `src/app/index.jsx` y `src/app/detalle/[id].jsx` |
 | Octubre: inicio y `[id]` | Stack, navegar pasando un parámetro y leerlo con `useLocalSearchParams` | `src/app/_layout.jsx` y `src/app/detalle/[id].jsx` |
-| Carrito anterior: FastAPI | `BaseModel`, endpoints GET/POST y consultas SQL | `backend/main.py`, `backend/db.py` |
+| Carrito anterior: FastAPI | `BaseModel`, endpoints GET/POST y consultas SQL | `backend/main.py`, `backend/base_datos.py` |
 
 El repositorio `Matesitoo/Vinoteca-Lopez-Torps` estaba vacío al revisarlo; las referencias anteriores provienen de las carpetas locales. No se copiaron las integraciones de pago real ni el login del carrito anterior porque esta consigna pide pago simulado.
 
 ## Orden recomendado para estudiar el código
 
-1. `src/app/_layout.jsx`: el Stack contiene las tres pantallas. `CarritoProvider` las envuelve para compartir el estado.
-2. `src/app/index.jsx`: `productos` empieza como un arreglo vacío. Al montar la pantalla, `useEffect` ejecuta el GET. Se guarda la respuesta con `setProductos` y se muestra usando `FlatList`.
-3. `src/components/Producto.jsx`: recibe `producto` y `onPress` por props; muestra una tarjeta sin hacer peticiones ni guardar el carrito.
+1. `src/app/_layout.jsx`: el Stack contiene las tres pantallas. `ProveedorCarrito` las envuelve para compartir el estado.
+2. `src/app/index.jsx`: `productos` empieza como un arreglo vacío. Al montar la pantalla, `useEffect` ejecuta el GET. Se guarda la respuesta con `actualizarProductos` y se muestra usando `FlatList`.
+3. `src/componentes/Producto.jsx`: recibe `producto` y `alPresionar` por props; muestra una tarjeta sin hacer peticiones ni guardar el carrito.
 4. `src/app/detalle/[id].jsx`: el catálogo envía el ID en la navegación. `useLocalSearchParams` lo lee y el GET consulta el vino correspondiente.
-5. `src/context/CarritoContext.jsx`: `useState` conserva el arreglo compartido. `find` busca un producto, `map` modifica cantidades y `filter` elimina. El total es precio por cantidad, sumado para todos los ítems.
+5. `src/contexto/ContextoCarrito.jsx`: `useState` conserva el arreglo compartido. `find` busca un producto, `map` modifica cantidades y `filter` elimina. El total es precio por cantidad, sumado para todos los ítems.
 6. `src/app/carrito.jsx`: cada `TextInput` tiene su estado. El botón arma un objeto `pedido`, lo convierte a JSON y hace POST. Si el servidor confirma, muestra la orden y vacía el carrito.
 7. `backend/main.py`: FastAPI recibe el JSON y `BaseModel` valida su estructura. Después se comprueban existencia, stock y total real desde la base de datos.
-8. `backend/db.py`: abre la conexión a Supabase usando `DATABASE_URL`. Para practicar localmente, también permite SQLite. `database/supabase.sql` crea las tablas de PostgreSQL y carga los 20 vinos.
+8. `backend/base_datos.py`: abre la conexión a Supabase usando `DATABASE_URL`. Para practicar localmente, también permite SQLite. `database/supabase.sql` crea las tablas de PostgreSQL y carga los 20 vinos.
 
 ## Flujo de una compra
 
@@ -46,3 +46,7 @@ Lean las funciones y prueben sus cambios antes de defender. Ambos deben poder ex
 ## Cómo explicar producción
 
 La web se publica en Vercel. Las peticiones a `/api/productos` y `/api/checkout` llegan a nuestro código de FastAPI. El servidor se conecta a PostgreSQL en Supabase con una contraseña que solo existe en el entorno del backend. No usamos la clave pública de Supabase en el frontend. Al confirmar una compra, `SELECT ... FOR UPDATE` bloquea las filas seleccionadas hasta guardar la orden y descontar el stock. SQLite queda para practicar sin conexión a Supabase.
+
+## Convenciones de lectura
+
+El código propio usa nombres en español: `Catalogo`, `Navegacion`, `ProveedorCarrito`, `alPresionar`, `consultarApi` y `conectar_base`. Se conservan los identificadores requeridos por las bibliotecas (`useState`, `useEffect`, `onPress`, `children`, `app`) y el contrato JSON `items`. Los componentes `Boton`, `Campo` y `Producto` reciben props; las tres pantallas comparten `consultarApi` para consultar o enviar pedidos. El formato JavaScript/JSX está definido en `.prettierrc.json`.

@@ -12,13 +12,16 @@ load_dotenv(CARPETA / '.env')
 RUTA_DB = Path(os.getenv('DB_PATH', CARPETA / 'data' / 'vinoteca.db'))
 
 
-def get_connection():
+def conectar_base():
     url = os.getenv('DATABASE_URL')
     if url:
         # Supabase: conexión desde nuestro servidor, nunca desde la app.
         return psycopg.connect(
-            url, row_factory=dict_row, prepare_threshold=None,
-            sslmode='require', connect_timeout=10,
+            url,
+            row_factory=dict_row,
+            prepare_threshold=None,
+            sslmode='require',
+            connect_timeout=10,
         )
     if os.getenv('VERCEL'):
         raise RuntimeError('Falta configurar DATABASE_URL en Vercel.')
@@ -57,7 +60,7 @@ def iniciar_base():
     # No ejecutamos migraciones ni modificamos el catálogo al recibir solicitudes.
     if os.getenv('DATABASE_URL') or os.getenv('VERCEL'):
         return
-    conexion = get_connection()
+    conexion = conectar_base()
     try:
         conexion.execute('''
             CREATE TABLE IF NOT EXISTS productos (
@@ -83,8 +86,10 @@ def iniciar_base():
         for producto in productos:
             conexion.execute(
                 'INSERT OR IGNORE INTO productos VALUES (?, ?, ?, ?, ?, ?, ?)',
-                (producto['id'], producto['nombre'], producto['descripcion'],
-                 producto['precio'], producto['imagen'], producto['categoria'], producto['stock'])
+                (
+                    producto['id'], producto['nombre'], producto['descripcion'],
+                    producto['precio'], producto['imagen'], producto['categoria'], producto['stock'],
+                ),
             )
         conexion.commit()
     finally:

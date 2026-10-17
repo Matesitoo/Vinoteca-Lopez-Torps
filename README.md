@@ -38,12 +38,12 @@ npm run backend
 
 Equivale a `backend/.venv/bin/python -m uvicorn backend.main:app --host 0.0.0.0 --port 3001`. En Windows ejecutar el mismo comando con `backend/.venv/Scripts/python.exe`.
 
-La base `backend/data/vinoteca.db` se crea y precarga automáticamente. Abrir `http://localhost:3001/api/docs` para ver y probar los endpoints.
+Sin `DATABASE_URL`, la base SQLite `backend/data/vinoteca.db` se crea y precarga automáticamente. Si `backend/.env` contiene esa variable, el servidor usa Supabase. Abrir `http://localhost:3001/api/docs` para ver y probar los endpoints.
 
 En otra terminal:
 
 ```bash
-npm install
+npm ci
 npm start
 ```
 
@@ -64,20 +64,33 @@ src/
     index.jsx               # GET inicial y FlatList
     detalle/[id].jsx         # Parámetro de ruta y detalle
     carrito.jsx             # Carrito, formulario, POST y comprobante
-  components/
+  componentes/
     Boton.jsx               # Botón reutilizable con props
     Producto.jsx            # Tarjeta reutilizable con props
-  context/
-    CarritoContext.jsx      # useState compartido entre pantallas
-  lib/config.js             # URL del servidor y formato de precios
-  styles/estilos.js         # StyleSheet y Flexbox
+    Campo.jsx               # Etiqueta y entrada del formulario
+  contexto/
+    ContextoCarrito.jsx     # useState compartido entre pantallas
+  configuracion/api.js     # Peticiones al servidor y formato de precios
+  estilos/estilos.js        # StyleSheet y Flexbox
 backend/
   main.py                   # Modelos del pedido y endpoints
-  db.py                     # Conexión a Supabase o SQLite local
+  base_datos.py             # Conexión a Supabase o SQLite local
   test_api.py               # Pruebas con una base temporal
 ```
 
 Leer [GUIA-DEFENSA.md](GUIA-DEFENSA.md) para relacionarlo con los trabajos anteriores y practicar la explicación.
+
+## Organización y lectura del código
+
+El código propio usa nombres en español y una indentación de dos espacios en JavaScript/JSX y cuatro en Python. Se mantienen los nombres que necesitan React Native, Expo y FastAPI, como `useState`, `onPress` y `app`, y el campo JSON `items` para conservar el contrato de la API.
+
+- `Catalogo` consulta los productos con `useEffect`, permite filtrarlos y abre el detalle por `id`.
+- `Detalle` consulta el vino seleccionado y lo agrega al `ContextoCarrito`.
+- `ProveedorCarrito` comparte los productos, las cantidades y el total entre las pantallas.
+- `Carrito` usa `Campo` para el formulario y envía el pedido con `consultarApi`, la misma función que consulta catálogo y detalle.
+- FastAPI valida el pedido y guarda la orden y el descuento de stock en una sola transacción.
+
+Los componentes `Boton`, `Campo` y `Producto` reciben datos y acciones mediante props. Los estilos compartidos están en `estilos.js`. Se evita repetir código sin comprimir las instrucciones en líneas difíciles de explicar. `.prettierrc.json` define el formato del frontend.
 
 ## API
 
@@ -120,7 +133,7 @@ Las pantallas son JSX y se revisan con lint; TypeScript solo revisa los archivos
 
 El código queda preparado para un solo dominio: web Expo en `/` y API propia FastAPI en `/api`. El frontend consulta nuestra API; la API consulta PostgreSQL. La base no se expone directamente a la app.
 
-**Estado:** web y API publicadas en Production: https://vinoteca-lopez-torps.vercel.app. Supabase `vinoteca` (`qlshcbmolalexrqdrnfv`) conectado, 20 vinos cargados y compra completa verificada desde la web (orden simulada 2). La orden 1 corresponde a la prueba técnica inicial. El APK móvil todavía debe generarse e instalarse para la defensa nativa.
+**Sitio publicado:** web y API en Production: https://vinoteca-lopez-torps.vercel.app. Supabase `vinoteca` (`qlshcbmolalexrqdrnfv`) conectado, 20 vinos cargados y compra completa verificada desde la web (orden simulada 2). La orden 1 corresponde a la prueba técnica inicial. Los cambios locales posteriores requieren un nuevo despliegue para aparecer en ese sitio. El APK móvil todavía debe generarse e instalarse para la defensa nativa.
 
 ### 1. Crear Supabase
 

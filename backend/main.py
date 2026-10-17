@@ -6,8 +6,10 @@ from typing import List, Literal
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from backend.db import (get_connection, iniciar_base, producto_json,
-                        consultar, iniciar_transaccion, buscar_para_compra)
+from backend.base_datos import (
+    conectar_base, iniciar_base, producto_json, consultar,
+    iniciar_transaccion, buscar_para_compra,
+)
 
 app = FastAPI(title='Vinoteca Lopez & Torps', docs_url='/api/docs', openapi_url='/api/openapi.json')
 app.add_middleware(
@@ -27,14 +29,14 @@ class Comprador(BaseModel):
     referencia: str = Field(min_length=3, max_length=80)
 
 
-class ItemCarrito(BaseModel):
+class ArticuloCarrito(BaseModel):
     id: int = Field(gt=0, strict=True)
     cantidad: int = Field(ge=1, le=99, strict=True)
 
 
 class Pedido(BaseModel):
     comprador: Comprador
-    items: List[ItemCarrito] = Field(min_length=1, max_length=100)
+    items: List[ArticuloCarrito] = Field(min_length=1, max_length=100)
     total: float = Field(gt=0, allow_inf_nan=False)
 
 
@@ -47,7 +49,7 @@ def estado():
 @app.get('/api/productos')
 @app.get('/productos', include_in_schema=False)
 def obtener_productos():
-    conexion = get_connection()
+    conexion = conectar_base()
     try:
         filas = consultar(conexion, 'SELECT * FROM productos ORDER BY id').fetchall()
         return [producto_json(fila) for fila in filas]
@@ -58,7 +60,7 @@ def obtener_productos():
 @app.get('/api/productos/{id}')
 @app.get('/productos/{id}', include_in_schema=False)
 def obtener_producto(id: int):
-    conexion = get_connection()
+    conexion = conectar_base()
     try:
         fila = consultar(conexion, 'SELECT * FROM productos WHERE id = ?', (id,)).fetchone()
         if fila is None:
@@ -72,16 +74,20 @@ def obtener_producto(id: int):
 @app.post('/checkout', status_code=201, include_in_schema=False)
 def confirmar_compra(pedido: Pedido):
     comprador = pedido.comprador
-    if len(comprador.nombre.strip()) < 3 or len(comprador.direccion.strip()) < 5 or len(comprador.referencia.strip()) < 3:
+    if (
+        len(comprador.nombre.strip()) < 3
+        or len(comprador.direccion.strip()) < 5
+        or len(comprador.referencia.strip()) < 3
+    ):
         raise HTTPException(status_code=400, detail='Completá nombre, dirección y referencia válidos.')
 
-    conexion = get_connection()
+    conexion = conectar_base()
     try:
         # Una transacción guarda orden y stock juntos, o cancela ambos.
         iniciar_transaccion(conexion)
         cantidades = {}
-        for item in pedido.items:
-            cantidades[item.id] = cantidades.get(item.id, 0) + item.cantidad
+        for articulo in pedido.items:
+            cantidades[articulo.id] = cantidades.get(articulo.id, 0) + articulo.cantidad
 
         total_centavos = 0
         productos_pedido = []
@@ -98,13 +104,17 @@ def confirmar_compra(pedido: Pedido):
             })
 
         if abs(pedido.total * 100 - total_centavos) > 0.01:
-            raise HTTPException(status_code=409, detail='El precio cambió. Quitá los productos del carrito y volvé a agregarlos desde el catálogo actualizado.')
+            raise HTTPException(
+                status_code=409,
+                detail='El precio cambió. Quitá los productos del carrito y volvé a agregarlos desde el catálogo actualizado.',
+            )
 
         fecha = datetime.now(timezone.utc).isoformat()
         datos_comprador = {'nombre': comprador.nombre.strip(), 'direccion': comprador.direccion.strip()}
-        cursor = consultar(conexion,
+        cursor = consultar(
+            conexion,
             'INSERT INTO ordenes (fecha, comprador, total, items) VALUES (?, ?, ?, ?) RETURNING id',
-            (fecha, json.dumps(datos_comprador), total_centavos, json.dumps(productos_pedido))
+            (fecha, json.dumps(datos_comprador), total_centavos, json.dumps(productos_pedido)),
         )
         numero_orden = cursor.fetchone()['id']
         for id, cantidad in cantidades.items():

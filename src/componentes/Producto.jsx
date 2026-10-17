@@ -1,13 +1,13 @@
 import { Image, Pressable, Text } from 'react-native';
-import { estilos } from '../styles/estilos';
-import { mostrarPrecio } from '../lib/config';
+import { estilos } from '../estilos/estilos';
+import { mostrarPrecio } from '../configuracion/api';
 
 // Como Usuario en el trabajo de agosto: recibe datos y los muestra.
-export default function Producto({ producto, onPress }) {
+export default function Producto({ producto, alPresionar }) {
   return (
     <Pressable
       style={estilos.tarjeta}
-      onPress={onPress}
+      onPress={alPresionar}
       accessibilityRole="button"
       accessibilityLabel={`Ver ${producto.nombre}`}
     >
@@ -15,9 +15,7 @@ export default function Producto({ producto, onPress }) {
       <Text style={estilos.etiqueta}>{producto.categoria}</Text>
       <Text style={estilos.subtitulo}>{producto.nombre}</Text>
       <Text style={estilos.precio}>{mostrarPrecio(producto.precio)}</Text>
-      <Text style={estilos.texto}>
-        {producto.stock > 0 ? `${producto.stock} botellas disponibles` : 'Sin stock'}
-      </Text>
+      <Text style={estilos.texto}>{producto.stock > 0 ? `${producto.stock} botellas disponibles` : 'Sin stock'}</Text>
     </Pressable>
   );
 }

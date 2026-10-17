@@ -11,7 +11,7 @@ os.environ['DATABASE_URL'] = ''
 os.environ.pop('VERCEL', None)
 from fastapi.testclient import TestClient
 from backend.main import app
-from backend.db import get_connection, iniciar_base
+from backend.base_datos import conectar_base, iniciar_base
 
 
 class PruebasTienda(unittest.TestCase):
@@ -20,7 +20,7 @@ class PruebasTienda(unittest.TestCase):
         cls.cliente = TestClient(app)
 
     def setUp(self):
-        conexion = get_connection()
+        conexion = conectar_base()
         conexion.execute('DELETE FROM ordenes')
         conexion.execute('UPDATE productos SET stock = 10')
         conexion.commit()
@@ -50,7 +50,7 @@ class PruebasTienda(unittest.TestCase):
         orden = respuesta.json()
         self.assertEqual(orden['estado'], 'aprobado_simulado')
         self.assertEqual(self.cliente.get('/productos/1').json()['stock'], 8)
-        conexion = get_connection()
+        conexion = conectar_base()
         guardada = conexion.execute('SELECT * FROM ordenes WHERE id = ?', (orden['id'],)).fetchone()
         self.assertEqual(json.loads(guardada['comprador'])['nombre'], 'Ana Prueba')
         conexion.close()
@@ -79,7 +79,7 @@ class PruebasTienda(unittest.TestCase):
         self.pedido['items'].append({'id': 999, 'cantidad': 1})
         self.assertEqual(self.cliente.post('/checkout', json=self.pedido).status_code, 404)
         self.assertEqual(self.cliente.get('/productos/1').json()['stock'], 10)
-        conexion = get_connection()
+        conexion = conectar_base()
         self.assertEqual(conexion.execute('SELECT COUNT(*) FROM ordenes').fetchone()[0], 0)
         conexion.close()
 
