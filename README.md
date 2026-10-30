@@ -92,7 +92,7 @@ Consultar [FUNCIONAMIENTO.md](FUNCIONAMIENTO.md) para conocer el flujo de datos,
 
 El código propio usa nombres en español y una indentación de dos espacios en JavaScript/JSX y cuatro en Python. Se mantienen los nombres que necesitan React Native, Expo y FastAPI, como `useState`, `onPress` y `app`, y el campo JSON `items` para conservar el contrato de la API.
 
-- `Catalogo` consulta los productos con `useEffect`, permite filtrarlos y abre el detalle por `id`.
+- `Catalogo` consulta los productos con `useFocusEffect`, permite filtrarlos y abre el detalle por `id`.
 - `Detalle` consulta el vino seleccionado y lo agrega al `ContextoCarrito`.
 - `ProveedorCarrito` comparte los productos, las cantidades y el total entre las pantallas.
 - `Carrito` usa `Campo` para el formulario y envía el pedido con `consultarApi`, la misma función que consulta catálogo y detalle.
@@ -119,7 +119,7 @@ Ejemplo de pedido:
     "referencia": "TEST-1234"
   },
   "items": [{"id": 1, "cantidad": 1}],
-  "total": 12500
+  "total": 1800
 }
 ```
 
@@ -142,11 +142,11 @@ Las pantallas son JSX y se revisan con lint; TypeScript solo revisa los archivos
 
 El código queda preparado para un solo dominio: web Expo en `/` y API propia FastAPI en `/api`. El frontend consulta nuestra API; la API consulta PostgreSQL. La base no se expone directamente a la app.
 
-**Sitio publicado:** web y API en Production: https://vinoteca-lopez-torps.vercel.app. Las rutas web, el catálogo de 20 productos y el esquema actualizado de la API se verificaron con consultas de lectura. Las compras, los reintentos y la concurrencia se probaron con una base temporal. Los cambios posteriores requieren un nuevo despliegue. La instalación y prueba del APK en un teléfono quedan pendientes.
+**Sitio publicado:** web y API en Production: https://vinoteca-lopez-torps.vercel.app. Las rutas web, el catálogo de 20 productos y el esquema actualizado de la API se verificaron con consultas de lectura. Las compras, los reintentos y la concurrencia se probaron con una base temporal. En producción se verificó además la orden simulada 6: una unidad de Uvita Tinto; al reenviar la misma clave se obtuvo el mismo comprobante y quedó una sola orden. Los cambios posteriores requieren un nuevo despliegue. La instalación y prueba del APK en un teléfono quedan pendientes.
 
 ### 1. Crear Supabase
 
-Crear un proyecto llamado `vinoteca-lopez-torps`. En SQL Editor ejecutar `database/supabase.sql`: crea `productos`, `ordenes` y precarga 20 vinos. Puede ejecutarse de nuevo para actualizar nombres, descripciones, precios, imágenes y categorías sin borrar pedidos ni reponer stock. RLS queda activado y los roles públicos no tienen acceso a estas tablas.
+Crear un proyecto llamado `vinoteca-lopez-torps`. En SQL Editor ejecutar `database/supabase.sql`: crea `productos`, `ordenes`, `compras_confirmadas` y precarga 20 vinos. Puede ejecutarse de nuevo para actualizar nombres, descripciones, precios, imágenes y categorías sin borrar pedidos ni reponer stock. RLS queda activado y los roles públicos no tienen acceso a estas tablas.
 
 En **Connect → Transaction pooler**, copiar la URI PostgreSQL (puerto 6543) con la contraseña de la base. Se usa como `DATABASE_URL`, únicamente en el servidor. Codificar los caracteres especiales de la contraseña al formar la URI. La API usa TLS y desactiva las sentencias preparadas para ser compatible con ese pooler.
 
@@ -206,3 +206,5 @@ La variable `DATABASE_URL` está guardada como Secret en Production. `.vercelign
 `compras_confirmadas` conserva la clave, una huella del pedido y su comprobante dentro de la misma transacción que guarda la orden y descuenta stock. Una clave repetida con el mismo pedido devuelve el comprobante original; con otros datos devuelve 409. Las solicitudes simultáneas se serializan mediante un bloqueo transaccional en PostgreSQL. Para bases existentes, ejecutar `database/checkout_seguro.sql` antes de desplegar el backend actualizado. No se guarda la referencia ficticia en el servidor.
 
 El catálogo y el detalle se actualizan al volver a sus pantallas. El comprobante incluye fecha, estado, método y subtotales. Las imágenes disponen de un estado alternativo cuando no cargan.
+
+La generación del APK no forma parte de esta actualización. La configuración de Expo queda disponible para una futura compilación.
