@@ -54,7 +54,7 @@ export default function Catalogo() {
         ListHeaderComponent={
           <View style={estilos.formulario}>
             <Text style={estilos.titulo}>Cada vino, una historia.</Text>
-            <Text style={estilos.texto}>{productos.length} vinos para descubrir · Precios en pesos argentinos.</Text>
+            <Text style={estilos.texto}>{productos.length} vinos para descubrir · Precios de demostración en pesos argentinos.</Text>
             <Boton titulo={`Ver carrito (${cantidadTotal})`} alPresionar={() => navegacion.push('/carrito')} />
             <TextInput
               style={estilos.entrada}

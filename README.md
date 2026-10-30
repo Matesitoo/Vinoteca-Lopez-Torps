@@ -6,13 +6,13 @@ Trabajo Práctico N.º 2 — Tienda móvil con carrito y pago simulado.
 **Materia:** Proyecto y Desarrollo de Software para Plataformas Móviles.
 **Docente:** Prof. Leonardo Martínez.
 
-Tienda de vinos argentinos con 20 etiquetas ficticias, categorías, búsqueda, detalle, carrito y pago simulado. Imágenes ilustrativas desde Unsplash, precios de demostración en pesos argentinos y ningún cobro real.
+Tienda de vinos argentinos con 20 vinos de marcas reales y presentaciones de 750 ml o 1 litro, categorías, búsqueda, detalle, carrito y pago simulado. Imágenes ilustrativas desde Unsplash, precios de demostración en pesos argentinos y ningún cobro real.
 
 ## Tecnologías
 
 - App: React Native, Expo 57 y Expo Router (Stack), JavaScript/JSX.
 - API propia: Python y FastAPI.
-- Base de producción: PostgreSQL en Supabase. SQLite queda como opción para practicar localmente.
+- Base de producción: PostgreSQL en Supabase. SQLite queda como opción para desarrollo local.
 - Base inicial: `database/seed.json`. Los precios del seed están en centavos enteros; la API los devuelve en pesos.
 
 El frontend queda en la raíz del repositorio para conservar la estructura del proyecto Expo. El backend está en `backend/` y la base inicial en `database/`.
@@ -21,7 +21,7 @@ El frontend queda en la raíz del repositorio para conservar la estructura del p
 
 Requisitos: Node.js compatible con Expo 57 (22.13 o superior) y Python 3.9 o superior. Recomendado Python 3.12.
 
-Desde la raíz de `vinoteca`, preparar el backend una vez:
+Desde la raíz del proyecto, preparar el backend una vez:
 
 ```bash
 python3 -m venv backend/.venv
@@ -55,7 +55,15 @@ EXPO_PUBLIC_API_URL=http://IP-DE-TU-COMPUTADORA:3001
 
 Reiniciar Expo después de cambiar esa variable. Un túnel de Expo no publica el backend.
 
-## Archivos para estudiar
+## Catálogo y actualización de datos
+
+Los precios son de demostración, no cotizaciones comerciales. Las fotografías son ilustrativas y no representan los envases de las marcas. El catálogo incluye Uvita, Termidor, Toro, Santa Julia y otras marcas argentinas. Cada descripción indica su presentación.
+
+Editar `database/seed.json` no cambia por sí solo una base existente. Para actualizar Supabase, ejecutar `database/supabase.sql` en SQL Editor; para SQLite local, ejecutar `backend/.venv/bin/python -m backend.actualizar_catalogo`. Ambos conservan el stock existente y las órdenes. Las órdenes anteriores conservan los nombres y precios registrados al comprarlas.
+
+La web y FastAPI se despliegan con Vercel; PostgreSQL está en Supabase. El proyecto no utiliza Docker. SQLite se utiliza únicamente como alternativa local.
+
+## Estructura del proyecto
 
 ```text
 src/
@@ -78,7 +86,7 @@ backend/
   test_api.py               # Pruebas con una base temporal
 ```
 
-Leer [GUIA-DEFENSA.md](GUIA-DEFENSA.md) para relacionarlo con los trabajos anteriores y practicar la explicación.
+Consultar [FUNCIONAMIENTO.md](FUNCIONAMIENTO.md) para conocer el flujo de datos, la compra y el despliegue.
 
 ## Organización y lectura del código
 
@@ -90,7 +98,7 @@ El código propio usa nombres en español y una indentación de dos espacios en 
 - `Carrito` usa `Campo` para el formulario y envía el pedido con `consultarApi`, la misma función que consulta catálogo y detalle.
 - FastAPI valida el pedido y guarda la orden y el descuento de stock en una sola transacción.
 
-Los componentes `Boton`, `Campo` y `Producto` reciben datos y acciones mediante props. Los estilos compartidos están en `estilos.js`. Se evita repetir código sin comprimir las instrucciones en líneas difíciles de explicar. `.prettierrc.json` define el formato del frontend.
+Los componentes `Boton`, `Campo` y `Producto` reciben datos y acciones mediante props. Los estilos compartidos están en `estilos.js`. Se evita repetir código y se mantienen instrucciones legibles. `.prettierrc.json` define el formato del frontend.
 
 ## API
 
@@ -133,11 +141,11 @@ Las pantallas son JSX y se revisan con lint; TypeScript solo revisa los archivos
 
 El código queda preparado para un solo dominio: web Expo en `/` y API propia FastAPI en `/api`. El frontend consulta nuestra API; la API consulta PostgreSQL. La base no se expone directamente a la app.
 
-**Sitio publicado:** web y API en Production: https://vinoteca-lopez-torps.vercel.app. Supabase `vinoteca` (`qlshcbmolalexrqdrnfv`) conectado, 20 vinos cargados y compra completa verificada desde la web (orden simulada 2). La orden 1 corresponde a la prueba técnica inicial. Los cambios locales posteriores requieren un nuevo despliegue para aparecer en ese sitio. El APK móvil todavía debe generarse e instalarse para la defensa nativa.
+**Despliegue anterior de referencia:** web y API en Production: https://vinoteca-lopez-torps.vercel.app. Este dominio corresponde al despliegue previo; comprobar su catálogo después de actualizar la base y volver a desplegar. Los cambios locales posteriores requieren un nuevo despliegue para aparecer en ese sitio. El APK móvil todavía debe generarse, instalarse y verificarse.
 
 ### 1. Crear Supabase
 
-Crear un proyecto llamado `vinoteca-lopez-torps`. En SQL Editor ejecutar `database/supabase.sql`: crea `productos`, `ordenes` y precarga 20 vinos. Puede ejecutarse de nuevo sin borrar pedidos ni reponer stock. RLS queda activado y los roles públicos no tienen acceso a estas tablas.
+Crear un proyecto llamado `vinoteca-lopez-torps`. En SQL Editor ejecutar `database/supabase.sql`: crea `productos`, `ordenes` y precarga 20 vinos. Puede ejecutarse de nuevo para actualizar nombres, descripciones, precios, imágenes y categorías sin borrar pedidos ni reponer stock. RLS queda activado y los roles públicos no tienen acceso a estas tablas.
 
 En **Connect → Transaction pooler**, copiar la URI PostgreSQL (puerto 6543) con la contraseña de la base. Se usa como `DATABASE_URL`, únicamente en el servidor. Codificar los caracteres especiales de la contraseña al formar la URI. La API usa TLS y desactiva las sentencias preparadas para ser compatible con ese pooler.
 
@@ -179,9 +187,9 @@ npx eas-cli@latest init
 npx eas-cli@latest build --platform android --profile preview
 ```
 
-La web publicada en Vercel y el APK son entregas diferentes. Probar también el APK contra la API pública para la defensa móvil.
+La web publicada en Vercel y el APK son entregas diferentes. Probar también el APK contra la API pública.
 
-Repositorio: https://github.com/Matesitoo/Vinoteca-Lopez-Torps. Ambos integrantes deben hacer sus propios commits y poder explicar el código.
+Repositorio: https://github.com/Matesitoo/Vinoteca-Lopez-Torps.
 
 ### Actualizaciones de producción
 

@@ -89,7 +89,7 @@ export default function Carrito() {
                 <Image source={{ uri: articulo.imagen }} style={estilos.imagenCarrito} />
                 <View style={estilos.flexible}>
                   <Text style={estilos.subtitulo}>{articulo.nombre}</Text>
-                  <Text style={estilos.texto}>{mostrarPrecio(articulo.precio)} por botella</Text>
+                  <Text style={estilos.texto}>{mostrarPrecio(articulo.precio)} por unidad</Text>
                 </View>
               </View>
               <View style={estilos.controles}>

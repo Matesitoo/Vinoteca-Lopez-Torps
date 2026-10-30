@@ -15,7 +15,7 @@ export default function Producto({ producto, alPresionar }) {
       <Text style={estilos.etiqueta}>{producto.categoria}</Text>
       <Text style={estilos.subtitulo}>{producto.nombre}</Text>
       <Text style={estilos.precio}>{mostrarPrecio(producto.precio)}</Text>
-      <Text style={estilos.texto}>{producto.stock > 0 ? `${producto.stock} botellas disponibles` : 'Sin stock'}</Text>
+      <Text style={estilos.texto}>{producto.stock > 0 ? `${producto.stock} unidades disponibles` : 'Sin stock'}</Text>
     </Pressable>
   );
 }

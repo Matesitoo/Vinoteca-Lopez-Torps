@@ -66,9 +66,9 @@ export default function Detalle() {
         <Text style={estilos.etiqueta}>{producto.categoria}</Text>
         <Text style={estilos.titulo}>{producto.nombre}</Text>
         <Text style={estilos.precio}>{mostrarPrecio(producto.precio)}</Text>
-        <Text style={estilos.texto}>{producto.stock} botellas disponibles · 750 ml</Text>
+        <Text style={estilos.texto}>{producto.stock} unidades disponibles</Text>
         <View style={estilos.bloque}>
-          <Text style={estilos.subtitulo}>Origen y notas de cata</Text>
+          <Text style={estilos.subtitulo}>Descripción y presentación</Text>
           <Text style={estilos.texto}>{producto.descripcion}</Text>
         </View>
         <Boton

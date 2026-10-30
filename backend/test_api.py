@@ -83,6 +83,22 @@ class PruebasTienda(unittest.TestCase):
         self.assertEqual(conexion.execute('SELECT COUNT(*) FROM ordenes').fetchone()[0], 0)
         conexion.close()
 
+    def test_actualizar_catalogo_conserva_stock_y_ordenes(self):
+        from backend.actualizar_catalogo import actualizar_catalogo
+        orden = self.cliente.post('/checkout', json=self.pedido).json()
+        conexion = conectar_base()
+        conexion.execute("UPDATE productos SET nombre = 'Etiqueta anterior' WHERE id = 1")
+        conexion.commit()
+        conexion.close()
+        actualizar_catalogo()
+        producto = self.cliente.get('/productos/1').json()
+        self.assertEqual(producto['nombre'], 'Uvita Tinto')
+        self.assertEqual(producto['stock'], 8)
+        conexion = conectar_base()
+        guardada = conexion.execute('SELECT items FROM ordenes WHERE id = ?', (orden['id'],)).fetchone()
+        self.assertEqual(json.loads(guardada['items']), orden['items'])
+        conexion.close()
+
     def test_reiniciar_no_restablece_stock(self):
         self.cliente.post('/checkout', json=self.pedido)
         iniciar_base()
