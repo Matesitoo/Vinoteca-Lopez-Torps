@@ -2,6 +2,8 @@ import json
 import os
 import tempfile
 import unittest
+from uuid import uuid4
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 # Todas las pruebas usan una base temporal, separada del catálogo de la app.
@@ -21,6 +23,7 @@ class PruebasTienda(unittest.TestCase):
 
     def setUp(self):
         conexion = conectar_base()
+        conexion.execute('DELETE FROM compras_confirmadas')
         conexion.execute('DELETE FROM ordenes')
         conexion.execute('UPDATE productos SET stock = 10')
         conexion.commit()
@@ -98,6 +101,32 @@ class PruebasTienda(unittest.TestCase):
         guardada = conexion.execute('SELECT items FROM ordenes WHERE id = ?', (orden['id'],)).fetchone()
         self.assertEqual(json.loads(guardada['items']), orden['items'])
         conexion.close()
+
+    def test_reintento_devuelve_misma_orden_sin_descontar_dos_veces(self):
+        self.pedido['clave'] = str(uuid4())
+        primera = self.cliente.post('/checkout', json=self.pedido)
+        segunda = self.cliente.post('/checkout', json=self.pedido)
+        self.assertEqual(primera.status_code, 201)
+        self.assertEqual(segunda.json(), primera.json())
+        self.assertEqual(self.cliente.get('/productos/1').json()['stock'], 8)
+        self.assertEqual(primera.json()['comprador']['metodo'], 'tarjeta')
+
+    def test_no_reutiliza_clave_con_datos_distintos(self):
+        self.pedido['clave'] = str(uuid4())
+        self.cliente.post('/checkout', json=self.pedido)
+        self.pedido['comprador']['nombre'] = 'Otra persona'
+        self.assertEqual(self.cliente.post('/checkout', json=self.pedido).status_code, 409)
+        self.assertEqual(self.cliente.get('/productos/1').json()['stock'], 8)
+
+    def test_solicitudes_simultaneas_crean_una_sola_orden(self):
+        self.pedido['clave'] = str(uuid4())
+        with ThreadPoolExecutor(max_workers=2) as ejecutor:
+            respuestas = list(ejecutor.map(
+                lambda _: self.cliente.post('/checkout', json=self.pedido), range(2)
+            ))
+        self.assertTrue(all(respuesta.status_code == 201 for respuesta in respuestas))
+        self.assertEqual(respuestas[0].json(), respuestas[1].json())
+        self.assertEqual(self.cliente.get('/productos/1').json()['stock'], 8)
 
     def test_reiniciar_no_restablece_stock(self):
         self.cliente.post('/checkout', json=self.pedido)

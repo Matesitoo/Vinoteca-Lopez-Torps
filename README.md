@@ -111,6 +111,7 @@ Ejemplo de pedido:
 
 ```json
 {
+  "clave": "7b394cec-f053-4bd1-8b29-36f27b06b206",
   "comprador": {
     "nombre": "Ana Prueba",
     "direccion": "Calle Ficticia 123",
@@ -122,9 +123,9 @@ Ejemplo de pedido:
 }
 ```
 
-Los métodos son `tarjeta` o `transferencia`, ambos simulados. La referencia de pago no se guarda. Los errores tienen `detail`, como en FastAPI. La app deshabilita los controles al pagar. No hay reintento automático de compras: si se corta la conexión después de enviar un pedido, revisar la base antes de repetirlo para no generar otra orden. El carrito vive en memoria y se vacía al cerrar o recargar la app.
+Los métodos son `tarjeta` o `transferencia`, ambos simulados. La referencia de pago no se guarda en la base del servidor. Los errores tienen `detail`, como en FastAPI. La app deshabilita los controles al pagar. Cada compra de la app lleva una clave única. Antes de enviarla, se conserva localmente como compra pendiente, con los datos ficticios del formulario. Si se pierde la conexión o se recarga la app, «Recuperar compra» reenvía la misma clave y obtiene la misma orden sin duplicarla. Al confirmar o recibir un rechazo definitivo se elimina la compra pendiente. El carrito común vive en memoria y se vacía al cerrar o recargar la app.
 
-Ante un error de precio o stock, actualizar el catálogo, quitar el producto del carrito y agregarlo de nuevo. Las bases de las versiones anteriores (`tienda.sqlite` y `vinos.sqlite`) se conservan sin modificar; esta versión usa `vinoteca.db`.
+Ante un error de precio o stock, usar «Actualizar precios y stock» en el carrito y revisar el total. Los productos agotados se retiran y las cantidades se ajustan a la disponibilidad. Las bases de las versiones anteriores (`tienda.sqlite` y `vinos.sqlite`) se conservan sin modificar; esta versión usa `vinoteca.db`.
 
 ## Verificar
 
@@ -141,7 +142,7 @@ Las pantallas son JSX y se revisan con lint; TypeScript solo revisa los archivos
 
 El código queda preparado para un solo dominio: web Expo en `/` y API propia FastAPI en `/api`. El frontend consulta nuestra API; la API consulta PostgreSQL. La base no se expone directamente a la app.
 
-**Despliegue anterior de referencia:** web y API en Production: https://vinoteca-lopez-torps.vercel.app. Este dominio corresponde al despliegue previo; comprobar su catálogo después de actualizar la base y volver a desplegar. Los cambios locales posteriores requieren un nuevo despliegue para aparecer en ese sitio. El APK móvil todavía debe generarse, instalarse y verificarse.
+**Sitio publicado:** web y API en Production: https://vinoteca-lopez-torps.vercel.app. Las rutas web, el catálogo de 20 productos y el esquema actualizado de la API se verificaron con consultas de lectura. Las compras, los reintentos y la concurrencia se probaron con una base temporal. Los cambios posteriores requieren un nuevo despliegue. La instalación y prueba del APK en un teléfono quedan pendientes.
 
 ### 1. Crear Supabase
 
@@ -179,11 +180,10 @@ En Vercel no se escribe una base SQLite: si falta `DATABASE_URL`, el backend fal
 
 ### App móvil instalada
 
-Configurar `EXPO_PUBLIC_API_URL=https://DOMINIO-REAL.vercel.app/api` antes de construir el APK:
+`eas.json` configura `EXPO_PUBLIC_API_URL=https://vinoteca-lopez-torps.vercel.app/api` en los perfiles preview y production. El proyecto está vinculado a [Expo](https://expo.dev/accounts/bachalopez/projects/vinoteca-lopez-torps). Para generar un APK instalable:
 
 ```bash
 npx eas-cli@latest login
-npx eas-cli@latest init
 npx eas-cli@latest build --platform android --profile preview
 ```
 
@@ -200,3 +200,9 @@ npx vercel@latest deploy --prod --yes --scope bachalopez22s-projects
 ```
 
 La variable `DATABASE_URL` está guardada como Secret en Production. `.vercelignore` excluye los archivos locales de credenciales y las bases de desarrollo de los uploads.
+
+## Recuperación de compras
+
+`compras_confirmadas` conserva la clave, una huella del pedido y su comprobante dentro de la misma transacción que guarda la orden y descuenta stock. Una clave repetida con el mismo pedido devuelve el comprobante original; con otros datos devuelve 409. Las solicitudes simultáneas se serializan mediante un bloqueo transaccional en PostgreSQL. Para bases existentes, ejecutar `database/checkout_seguro.sql` antes de desplegar el backend actualizado. No se guarda la referencia ficticia en el servidor.
+
+El catálogo y el detalle se actualizan al volver a sus pantallas. El comprobante incluye fecha, estado, método y subtotales. Las imágenes disponen de un estado alternativo cuando no cargan.

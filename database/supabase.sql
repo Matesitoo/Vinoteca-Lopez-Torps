@@ -122,4 +122,11 @@ VALUES (20, 'San Felipe Tinto', 'Vino argentino. Botella de 750 ml. Imagen ilust
 ON CONFLICT (id) DO UPDATE SET
   nombre = EXCLUDED.nombre, descripcion = EXCLUDED.descripcion,
   precio = EXCLUDED.precio, imagen = EXCLUDED.imagen, categoria = EXCLUDED.categoria;
+CREATE TABLE IF NOT EXISTS public.compras_confirmadas (
+  clave TEXT PRIMARY KEY,
+  huella TEXT NOT NULL,
+  respuesta TEXT NOT NULL
+);
+ALTER TABLE public.compras_confirmadas ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.compras_confirmadas FROM anon, authenticated;
 COMMIT;

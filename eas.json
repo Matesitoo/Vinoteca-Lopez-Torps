@@ -1,1 +1,24 @@
-{"cli":{"version":">=16.0.0"},"build":{"preview":{"distribution":"internal","android":{"buildType":"apk"}},"production":{"android":{"buildType":"app-bundle"}}}}
+{
+  "cli": {
+    "version": ">=16.0.0"
+  },
+  "build": {
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://vinoteca-lopez-torps.vercel.app/api"
+      }
+    },
+    "production": {
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://vinoteca-lopez-torps.vercel.app/api"
+      }
+    }
+  }
+}

@@ -1,6 +1,7 @@
-import { useContext, useEffect, useState } from 'react';
-import { useRouter } from 'expo-router';
-import { ActivityIndicator, FlatList, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import Filtro from '../componentes/Filtro';
+import { useCallback, useContext, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { ActivityIndicator, FlatList, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ContextoCarrito } from '../contexto/ContextoCarrito';
 import { consultarApi } from '../configuracion/api';
@@ -27,10 +28,15 @@ export default function Catalogo() {
       .finally(() => cambiarCarga(false));
   }
 
-  // Igual que en el trabajo de la NASA: consultar la API al montar la pantalla.
-  useEffect(() => {
-    cargarProductos();
-  }, []);
+  useFocusEffect(useCallback(() => {
+    let activo = true;
+    cambiarCarga(true);
+    consultarApi('/productos')
+      .then((datos) => { if (activo) { actualizarProductos(datos); cambiarError(''); } })
+      .catch((problema) => { if (activo) cambiarError(problema.message); })
+      .finally(() => { if (activo) cambiarCarga(false); });
+    return () => { activo = false; };
+  }, []));
 
   const categorias = ['Todos', ...new Set(productos.map((producto) => producto.categoria))];
   const filtrados = productos.filter((producto) => {
@@ -59,19 +65,15 @@ export default function Catalogo() {
             <TextInput
               style={estilos.entrada}
               placeholder="Buscar un vino"
+              placeholderTextColor="#68545D"
               accessibilityLabel="Buscar un vino"
               value={busqueda}
               onChangeText={cambiarBusqueda}
             />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={estilos.filtros}>
               {categorias.map((nombre) => (
-                <Pressable
-                  key={nombre}
-                  onPress={() => cambiarCategoria(nombre)}
-                  style={[estilos.filtro, categoria === nombre && estilos.filtroActivo]}
-                >
-                  <Text style={[estilos.etiqueta, categoria === nombre && estilos.textoFiltroActivo]}>{nombre}</Text>
-                </Pressable>
+                <Filtro key={nombre} nombre={nombre} seleccionado={categoria === nombre}
+                  alPresionar={() => cambiarCategoria(nombre)} />
               ))}
             </ScrollView>
             <Boton
@@ -89,7 +91,7 @@ export default function Catalogo() {
           cargando ? (
             <ActivityIndicator size="large" color="#782E47" />
           ) : (
-            <Text style={error ? estilos.error : estilos.texto}>
+            <Text accessibilityLiveRegion="polite" role={error ? 'alert' : 'status'} style={error ? estilos.error : estilos.texto}>
               {error || 'No hay vinos que coincidan con tu búsqueda.'}
             </Text>
           )

@@ -19,14 +19,25 @@ export async function consultarApi(ruta, pedido) {
   const opciones = pedido
     ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(pedido) }
     : {};
-  const respuesta = await fetch(`${URL_API.replace(/\/$/, '')}${ruta}`, opciones).catch(() => {
-    throw new Error('No se pudo conectar con la tienda. Revisá tu conexión.');
-  });
-  const datos = await respuesta.json().catch(() => {
-    throw new Error('La API devolvió una respuesta inválida.');
-  });
-  if (!respuesta.ok) {
-    throw new Error(typeof datos.detail === 'string' ? datos.detail : 'Revisá los datos enviados.');
+  const controlador = new AbortController();
+  const espera = setTimeout(() => controlador.abort(), 20000);
+  try {
+    const respuesta = await fetch(`${URL_API.replace(/\/$/, '')}${ruta}`, {
+      ...opciones, signal: controlador.signal,
+    });
+    const datos = await respuesta.json().catch(() => {
+      throw new Error('La tienda devolvió una respuesta inválida. Podés reintentar la misma compra.');
+    });
+    if (!respuesta.ok) {
+      const error = new Error(typeof datos.detail === 'string' ? datos.detail : 'Revisá los datos enviados.');
+      error.status = respuesta.status;
+      throw error;
+    }
+    return datos;
+  } catch (error) {
+    if (error.status) throw error;
+    throw new Error('No se pudo confirmar la respuesta de la tienda. Revisá tu conexión y reintentá.');
+  } finally {
+    clearTimeout(espera);
   }
-  return datos;
 }

@@ -3,7 +3,7 @@
 ## Estructura del código
 
 1. `src/app/_layout.jsx`: el Stack contiene las tres pantallas. `ProveedorCarrito` las envuelve para compartir el estado.
-2. `src/app/index.jsx`: `productos` empieza como un arreglo vacío. Al montar la pantalla, `useEffect` ejecuta el GET. Se guarda la respuesta con `actualizarProductos` y se muestra usando `FlatList`.
+2. `src/app/index.jsx`: `productos` empieza como un arreglo vacío. Al enfocar la pantalla, `useFocusEffect` ejecuta el GET para recuperar precios y stock vigentes. Se guarda la respuesta con `actualizarProductos` y se muestra usando `FlatList`.
 3. `src/componentes/Producto.jsx`: recibe `producto` y `alPresionar` por props; muestra una tarjeta sin hacer peticiones ni guardar el carrito.
 4. `src/app/detalle/[id].jsx`: el catálogo envía el ID en la navegación. `useLocalSearchParams` lo lee y el GET consulta el vino correspondiente.
 5. `src/contexto/ContextoCarrito.jsx`: `useState` conserva el arreglo compartido. `find` busca un producto, `map` modifica cantidades y `filter` elimina. El total es precio por cantidad, sumado para todos los ítems.
@@ -28,3 +28,9 @@ El código propio usa nombres en español: `Catalogo`, `Navegacion`, `ProveedorC
 ## Catálogo actual
 
 Usamos marcas reales de vinos argentinos, precios de demostración e imágenes ilustrativas. Las presentaciones varían: no todos los productos son botellas de 750 ml. `database/seed.json` define la carga inicial; `database/supabase.sql` actualiza el catálogo de Supabase sin reponer stock ni borrar órdenes. El despliegue usa Vercel y Supabase, sin Docker.
+
+## Compra pendiente y reintentos
+
+Antes de enviar el pedido se guarda localmente una clave única junto con los datos ficticios de la compra. Si se pierde la respuesta, la app permite recuperar esa misma compra incluso después de una recarga. El servidor devuelve el comprobante original cuando recibe nuevamente la misma clave. La tabla `compras_confirmadas` y la orden se confirman en una sola transacción, evitando descontar stock dos veces. La referencia ficticia no se guarda en la base del servidor.
+
+El carrito permite actualizar precios y stock. La pantalla muestra un aviso para revisar el nuevo total antes de pagar. Los campos indican errores específicos y el comprobante muestra fecha, estado y método de pago.

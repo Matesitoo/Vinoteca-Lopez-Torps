@@ -82,6 +82,13 @@ def iniciar_base():
                 items TEXT NOT NULL
             )
         ''')
+        conexion.execute('''
+            CREATE TABLE IF NOT EXISTS compras_confirmadas (
+                clave TEXT PRIMARY KEY,
+                huella TEXT NOT NULL,
+                respuesta TEXT NOT NULL
+            )
+        ''')
         productos = json.loads((CARPETA.parent / 'database' / 'seed.json').read_text())
         for producto in productos:
             conexion.execute(

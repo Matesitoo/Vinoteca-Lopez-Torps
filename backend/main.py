@@ -1,7 +1,10 @@
+import hashlib
 import json
+import sqlite3
 import os
 from datetime import datetime, timezone
-from typing import List, Literal
+from typing import List, Literal, Optional
+from uuid import UUID
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -35,6 +38,7 @@ class ArticuloCarrito(BaseModel):
 
 
 class Pedido(BaseModel):
+    clave: Optional[UUID] = None
     comprador: Comprador
     items: List[ArticuloCarrito] = Field(min_length=1, max_length=100)
     total: float = Field(gt=0, allow_inf_nan=False)
@@ -85,6 +89,24 @@ def confirmar_compra(pedido: Pedido):
     try:
         # Una transacción guarda orden y stock juntos, o cancela ambos.
         iniciar_transaccion(conexion)
+        # La misma clave devuelve la misma orden, incluso con solicitudes simultáneas.
+        clave = str(pedido.clave) if pedido.clave else None
+        huella = hashlib.sha256(
+            json.dumps(pedido.model_dump(mode='json'), sort_keys=True).encode()
+        ).hexdigest()
+        if clave:
+            if not isinstance(conexion, sqlite3.Connection):
+                bloqueo = int.from_bytes(hashlib.sha256(clave.encode()).digest()[:8], 'big', signed=True)
+                consultar(conexion, 'SELECT pg_advisory_xact_lock(?)', (bloqueo,))
+            anterior = consultar(
+                conexion, 'SELECT huella, respuesta FROM compras_confirmadas WHERE clave = ?', (clave,)
+            ).fetchone()
+            if anterior:
+                if anterior['huella'] != huella:
+                    raise HTTPException(status_code=409, detail='Esta compra ya fue enviada con otros datos.')
+                conexion.commit()
+                return json.loads(anterior['respuesta'])
+
         cantidades = {}
         for articulo in pedido.items:
             cantidades[articulo.id] = cantidades.get(articulo.id, 0) + articulo.cantidad
@@ -106,11 +128,11 @@ def confirmar_compra(pedido: Pedido):
         if abs(pedido.total * 100 - total_centavos) > 0.01:
             raise HTTPException(
                 status_code=409,
-                detail='El precio cambió. Quitá los productos del carrito y volvé a agregarlos desde el catálogo actualizado.',
+                detail='El precio cambió. Actualizá el carrito para revisar el nuevo total antes de confirmar.',
             )
 
         fecha = datetime.now(timezone.utc).isoformat()
-        datos_comprador = {'nombre': comprador.nombre.strip(), 'direccion': comprador.direccion.strip()}
+        datos_comprador = {'nombre': comprador.nombre.strip(), 'direccion': comprador.direccion.strip(), 'metodo': comprador.metodo}
         cursor = consultar(
             conexion,
             'INSERT INTO ordenes (fecha, comprador, total, items) VALUES (?, ?, ?, ?) RETURNING id',
@@ -119,12 +141,18 @@ def confirmar_compra(pedido: Pedido):
         numero_orden = cursor.fetchone()['id']
         for id, cantidad in cantidades.items():
             consultar(conexion, 'UPDATE productos SET stock = stock - ? WHERE id = ?', (cantidad, id))
-        conexion.commit()
-
-        return {
+        respuesta = {
             'id': numero_orden, 'fecha': fecha, 'estado': 'aprobado_simulado',
             'comprador': datos_comprador, 'items': productos_pedido, 'total': total_centavos / 100,
         }
+        if clave:
+            consultar(
+                conexion,
+                'INSERT INTO compras_confirmadas (clave, huella, respuesta) VALUES (?, ?, ?)',
+                (clave, huella, json.dumps(respuesta)),
+            )
+        conexion.commit()
+        return respuesta
     except Exception:
         conexion.rollback()
         raise
